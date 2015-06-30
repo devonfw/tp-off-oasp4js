@@ -1,22 +1,37 @@
 angular.module('app.table-mgmt').controller('TableDetailsCntl',
-    function ($scope, $sce, tableDetails, allOffers, currentOrder, sales, globalSpinner, positionStateNotification) {
+    function ($scope, $sce, tableDetails, allOffers, allSpecials, currentOrder, sales, globalSpinner, positionStateNotification) {
         'use strict';
         $scope.table = tableDetails;
+
+		console.log("All Specials: " + JSON.stringify(allSpecials));
+        $scope.activeSpecialsByOrderId = {};
+		allSpecials.forEach(function (special) {
+			if (special.activeStatus === 'Active') {
+				// TODO: technically there might be more than one active special
+				$scope.activeSpecialsByOrderId[special.offerId] = special;
+			}
+		});
+		console.log("Active Specials filtered: " + JSON.stringify($scope.activeSpecialsByOrderId));
+
+
+		console.log("All Offers: " + JSON.stringify(allOffers));
         $scope.allOffers = allOffers;
+
+
         $scope.model = {};
         $scope.model.order = currentOrder;
         $scope.model.selected = allOffers.length ? allOffers[0] : undefined;
         $scope.selectedItems = [];
-        
+
         $scope.positionsShown = [];
-        
+
         $scope.totalItems = $scope.model.order !== undefined ? $scope.model.order.positions.length : 0;
-        
+
         $scope.numPerPage = 3;
         $scope.currentPage = 1;
 
         $scope.maxSize = 4;
-  			
+
         $scope.$watch('totalItems + currentPage + numPerPage + model.order + model.order.positions', function () {
             if ($scope.model.order !== undefined) {
                 var begin = (($scope.currentPage - 1) * $scope.numPerPage), end = begin + $scope.numPerPage;
@@ -67,8 +82,10 @@ angular.module('app.table-mgmt').controller('TableDetailsCntl',
                 offerId: offer.id,
                 offerName: offer.description,
                 state: 'ORDERED',
-                price: offer.price,
-                comment: ''
+				price: $scope.activeSpecialsByOrderId[offer.id] ? $scope.activeSpecialsByOrderId[offer.id].specialPrice : offer.price,
+                comment: $scope.activeSpecialsByOrderId[offer.id]
+					? "Special '" + $scope.activeSpecialsByOrderId[offer.id].specialName + "' (" + $scope.activeSpecialsByOrderId[offer.id].specialPrice + " EUR instead of " + offer.price + " EUR)"
+					: ''
             });
             $scope.totalItems = $scope.model.order.positions.length;
         };

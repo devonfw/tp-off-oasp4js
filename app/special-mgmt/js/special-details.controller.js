@@ -4,8 +4,7 @@ angular.module('app.special-mgmt').controller('SpecialDetailsCntl',
         $scope.special = specialDetails;
         $scope.allOffers = allOffers;
 		var allOffersFiltered = allOffers.filter(function(offer) { 
-			// TODO also check for id
-			return offer.description === $scope.special.specialOffer; 
+			return offer.id === $scope.special.offerId; 
 		});
         $scope.selectedOffer = allOffersFiltered.length > 0 ? allOffersFiltered[0] : null;
 		
@@ -19,6 +18,13 @@ angular.module('app.special-mgmt').controller('SpecialDetailsCntl',
         $scope.submit = function () {
             globalSpinner.decorateCallOfFunctionReturningPromise(function () {
 				console.log("Saving special: " +JSON.stringify($scope.special));
+				
+				// map weekly period
+				$scope.special.activePeriod.startingDay = $scope.special.activeStartingDay;
+				$scope.special.activePeriod.endingDay = $scope.special.activeEndingDay;
+				$scope.special.activePeriod.startingHour = $scope.special.activeStartingTime.getHours();
+				$scope.special.activePeriod.endingHour = $scope.special.activeStartingTime.getHours();
+				
                 return specials.submitSpecial($scope.special);
             }).then(function () {
                 $scope.$close();

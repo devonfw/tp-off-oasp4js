@@ -9,16 +9,18 @@ angular.module('app.special-mgmt').factory('specials',
 		var paginatedSpecials = {};
 
 		return {
-			isActive: function (special) {
-				var now = new Date();
-				if (special.activeFrom < special.activeTo) {
-					return now.getHours() > special.activeFrom.getHours() && now.getHours() < special.activeTo.getHours();
-				} else {
-					// around midnight
-					return now.getHours() > special.activeFrom.getHours() || now.getHours() < special.activeTo.getHours();
-				}
-			},
+			// TODO decide whether to calculate on client or server
+			// isActive: function (special) {
+			// 	var now = new Date();
+			// 	if (special.activeFrom < special.activeTo) {
+			// 		return now.getHours() > special.activeFrom.getHours() && now.getHours() < special.activeTo.getHours();
+			// 	} else {
+			// 		// around midnight
+			// 		return now.getHours() > special.activeFrom.getHours() || now.getHours() < special.activeTo.getHours();
+			// 	}
+			// },
 			addOffers: function (paginatedSpecialList) {
+				// TODO decide whether to calculate on client or server
 				var self = this;
 
 				var result = offers
@@ -26,9 +28,8 @@ angular.module('app.special-mgmt').factory('specials',
 					.then(
 					function (allOffers) {
 						paginatedSpecialList = paginatedSpecialList.map(function (current) {
-							var allOffersFiltered = allOffers.filter(function (offer) { 
-								// TODO use id instead of description
-								return offer.description === current.offerId;
+							var allOffersFiltered = allOffers.filter(function (offer) {
+								return offer.id === current.offerId;
 							});
 							var offer = allOffersFiltered.length > 0 ? allOffersFiltered[0] : null;
 
@@ -40,7 +41,14 @@ angular.module('app.special-mgmt').factory('specials',
 								current.savingsPercentage = ((current.savings / current.originalPrice) * 100).toFixed(0) + " %";
 							}
 
-							current.activeStatus = self.isActive(current) ? "Active" : "Inactive";
+							// TODO decide whether to calculate on client or server
+							//current.activeStatus = self.isActive(current) ? "Active" : "Inactive";	
+
+							// map weekly period
+							current.activeStartingDay = current.activePeriod.startingDay;;
+							current.activeEndingDay = current.activePeriod.endingDay;
+							current.activeStartingTime = new Date(1970, 0, 1, current.activePeriod.startingHour, 0, 0);
+							current.activeEndingTime = new Date(1970, 0, 1, current.activePeriod.endingHour, 0, 0);
 							return current;
 						});
 
@@ -83,6 +91,14 @@ angular.module('app.special-mgmt').factory('specials',
 					return specialAsList[0];
 				});
 			},
+			loadAllSpecials: function () {
+				var self = this;
+
+				return specialManagementRestService.getAllSpecials().then(function (response) {
+					return self.addOffers(response.data);
+				});
+			},
+
 		};
 	}
 

@@ -20,7 +20,6 @@ angular.module('app.special-mgmt')
 				specialDetails: function () {
 					if (specialRow) {
 						var loadedSpecial = specials.loadSpecial(specialRow.id);
-						console.log("Loaded Special: " + JSON.stringify(loadedSpecial));
 						return loadedSpecial;
 					} else {
 						// create
@@ -32,8 +31,12 @@ angular.module('app.special-mgmt')
 							"specialName": null,
 							"offerId": null,
 							"specialPrice": null,
-							"activeFrom": null,
-							"activeTo": null,
+							"activePeriod": {
+								startingDay : null,
+								startingHour : null,
+								endingDay : null,
+								endingHour : null
+							}
 						}
 					}
 				},

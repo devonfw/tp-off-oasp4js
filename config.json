@@ -18,6 +18,6 @@
         "special-mgmt"
     ],
     "appBuild": true,
-    "proxy": "http://localhost:8081",
+    "proxy": "http://127.0.0.1:8081",
     "proxyContext": "/oasp4j-sample-server"
 }
